@@ -4,13 +4,13 @@ from datetime import datetime
 
 class PostCreate(BaseModel):
     title: str
-    content: str
+    body: str
     published: bool = True
     rating: Optional[int] = None    # ← YANGI
 
 class PostUpdate(BaseModel):
     title: str
-    content: str
+    body: str
     published: bool
     
 
@@ -20,7 +20,7 @@ class PostResponse(BaseModel):
 
     id: int
     title: str
-    content: str
+    body: str
     published: bool
     created_at: datetime
     owner_id: Optional[int] = None
