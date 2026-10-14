@@ -1,0 +1,29 @@
+name: Deploy FastAPI to EC2
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # GitHub'dan qo'lda ishga tushirish uchun
+
+# Bir vaqtda faqat bitta deploy ishlaydi
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Connect and deploy to EC2
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/ubuntu/fast_api_blog
+            git pull --ff-only origin main
+            bash deploy.sh
