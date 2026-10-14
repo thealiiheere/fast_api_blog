@@ -6,7 +6,7 @@ from .config import settings
 # Production da docs o'chirish (ixtiyoriy)
 app = FastAPI(
     title="Blog API",
-    version="5.0.10",
+    version="5.12.12",
     docs_url=None if settings.is_production else "/docs",
     redoc_url=None if settings.is_production else "/redoc",
     openapi_url=None if settings.is_production else "/openapi.json",
@@ -28,11 +28,11 @@ app.include_router(auth.router)
 def root():
     return {
         "xabar": "Blog API",
-        "version": "5.0.10",
+        "version": "5.12.12",
         "environment": settings.environment
     }
 
 # Health check — deploy platformalar uchun
-@app.get("/health")
+@app.get("/roothealth")
 def health_check():
     return {"status": "ok"}
