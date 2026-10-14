@@ -15,7 +15,7 @@ sudo systemctl restart fastapi_blog
 
 echo "==> Health check"
 for i in $(seq 1 10); do
-    if curl -fs http://127.0.0.1:8000/health; then
+    if curl -fs http://127.0.0.1:8000/roothealth; then
         echo
         echo "==> Deploy muvaffaqiyatli: $(git log --oneline -1)"
         exit 0
