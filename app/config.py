@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
     @property
     def is_production(self) -> bool:
-        return self.environment == "production"
+        return self.environment == "development"
 
     class Config:
         env_file = ".env"
