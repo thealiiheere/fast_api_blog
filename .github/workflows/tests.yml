@@ -12,12 +12,12 @@ jobs:
 
     steps:
       - name: Kodni olish
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7.0.1
 
       - name: Python sozlash
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7.0.0
         with:
-          python-version: '3.11'
+          python-version: '3.14'
 
       - name: Paketlarni o'rnatish
         run: |
@@ -37,6 +37,6 @@ jobs:
           pytest --cov=app --cov-report=xml
 
       - name: Coverage hisobotini yuklash
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v7.1.1
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
