@@ -1,16 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import posts, users, auth
+from .routers import posts, users, auth, websocket   # ← websocket qo'shildi
 from .config import settings
 
-# Production da docs o'chirish (ixtiyoriy)
-app = FastAPI(
-    title="Blog API",
-    version="5.12.12",
-    docs_url=None if settings.is_production else "/docs",
-    redoc_url=None if settings.is_production else "/redoc",
-    openapi_url=None if settings.is_production else "/openapi.json",
-)
+app = FastAPI(title="Blog API", version="6.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -23,16 +16,12 @@ app.add_middleware(
 app.include_router(posts.router)
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(websocket.router)  # ← qo'shildi
 
 @app.get("/")
 def root():
-    return {
-        "xabar": "Blog API",
-        "version": "5.12.12",
-        "environment": settings.environment
-    }
+    return {"xabar": "Blog API v6.0 — WebSocket bilan!"}
 
-# Health check — deploy platformalar uchun
-@app.get("/roothealth")
-def health_check():
+@app.get("/health")
+def health():
     return {"status": "ok"}
