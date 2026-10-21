@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
+
+from app.utils.email import send_welcome_email, write_log
 from .. import models, schemas
 from ..database import get_db
 from ..utils.hashing import hash_password, verify_password
@@ -11,18 +13,20 @@ router = APIRouter(
     tags=["Users"]
 )
 
-# ─── CREATE USER ──────────────────────────────
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=schemas.UserResponse
 )
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # Email allaqachon borligini tekshirish
+def create_user(
+    user: schemas.UserCreate,
+    background_tasks: BackgroundTasks,   # ← BackgroundTasks
+    db: Session = Depends(get_db)
+):
+    # Email tekshirish
     existing = db.query(models.User).filter(
         models.User.email == user.email
     ).first()
-
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -33,11 +37,28 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     hashed = hash_password(user.password)
     user.password = hashed
 
+    # DB ga yozish
     new_user = models.User(**user.model_dump())
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
+    # Fonda email yuborish — foydalanuvchi kutmaydi!
+    background_tasks.add_task(
+        send_welcome_email,
+        email=new_user.email,
+        username=new_user.username
+    )
+
+    # Fonda log yozish
+    background_tasks.add_task(
+        write_log,
+        action="user_created",
+        user_id=new_user.id,
+        details=f"email={new_user.email}"
+    )
+
+    # Darhol javob! (email kutilmaydi)
     return new_user
 
 # ─── JORIY FOYDALANUVCHI ──────────────────────
